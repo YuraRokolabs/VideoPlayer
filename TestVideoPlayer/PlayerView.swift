@@ -65,4 +65,13 @@ class PlayerView: UIView {
             callback()
         }
     }
+    func getDuration() -> Float64 {
+        guard let item = self.player.currentItem else {
+            return 0.0
+        }
+        return CMTimeGetSeconds(item.duration)
+    }
+    func getCurrentTime() -> Float64 {
+        return CMTimeGetSeconds(self.player.currentTime())
+    }
 }

@@ -8,10 +8,29 @@
 
 import UIKit
 import QuartzCore
-
+class RoundIndicator:UIView {
+    var value:CGFloat = 0.0 {
+        didSet {
+            self.circleLayer.strokeEnd = self.value
+        }
+    }
+    let circleLayer: CAShapeLayer = CAShapeLayer()
+    
+    func setupView() {
+        let circlePath = UIBezierPath(arcCenter: CGPoint(x: frame.size.width / 2.0, y: frame.size.height / 2.0), radius: frame.size.width/2.0, startAngle: 0.0, endAngle: CGFloat(M_PI * 2.0), clockwise: true)
+        self.circleLayer.path = circlePath.CGPath
+        self.circleLayer.fillColor = UIColor.clearColor().CGColor
+        self.circleLayer.strokeColor = UIColor.redColor().CGColor//self.backgroundColor!.CGColor
+        self.backgroundColor = UIColor.clearColor()
+        self.circleLayer.lineWidth = 2.0;
+        self.circleLayer.strokeEnd = 0.0
+        self.layer.addSublayer(circleLayer)
+    }
+}
 class VideoCell:UITableViewCell {
     @IBOutlet weak var titleLabel:UILabel!
     @IBOutlet weak var profileImageView: UIImageView!
+    @IBOutlet weak var indicatorView:RoundIndicator!
     private var imageDownloadModel:ImageDownloadModel = ImageDownloadModel()
     private var videoItem:VideoItem!
     override func layoutSubviews() {
@@ -19,7 +38,7 @@ class VideoCell:UITableViewCell {
         self.profileImageView.layer.cornerRadius = self.profileImageView.bounds.width / 2.0
     }
     func setVideoItem(videoItem:VideoItem) {
-        
+        self.indicatorView.setupView()
         self.videoItem = videoItem
         self.profileImageView.image = nil
         self.titleLabel.text = videoItem.title
@@ -47,8 +66,10 @@ class VideoCell:UITableViewCell {
     }
     override func setSelected(selected: Bool, animated: Bool) {
         if selected {
+            self.indicatorView.hidden = false
             self.titleLabel.textColor = UIColor.blueColor()
         } else {
+            self.indicatorView.hidden = true
             self.titleLabel.textColor = UIColor.blackColor()
         }
     }
@@ -63,6 +84,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     override func viewDidLoad() {
         super.viewDidLoad()
         self.reloadData()
+        NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: #selector(timerAction(_:)), userInfo: nil, repeats: true)
         // Do any additional setup after loading the view, typically from a nib.
     }
     override func viewWillAppear(animated: Bool) {
@@ -78,6 +100,20 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    func timerAction(timer:NSTimer) {
+        guard let index = self.selectedIndex else {
+            return
+        }
+        let indexPath = NSIndexPath(forRow: index, inSection: 0)
+        guard let cell = self.tableview.cellForRowAtIndexPath(indexPath) as? VideoCell else {
+            return
+        }
+        var progress:Float64 = 0
+        if self.playerView.getCurrentTime() > 0 {
+            progress = self.playerView.getCurrentTime() / self.playerView.getDuration()
+        }
+        cell.indicatorView.value = CGFloat(progress)
     }
     func loadData() {
         weak var weakSelf = self
