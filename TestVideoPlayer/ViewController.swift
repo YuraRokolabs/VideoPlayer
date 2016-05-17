@@ -17,7 +17,7 @@ class RoundIndicator:UIView {
     let circleLayer: CAShapeLayer = CAShapeLayer()
     
     func setupView() {
-        let circlePath = UIBezierPath(arcCenter: CGPoint(x: frame.size.width / 2.0, y: frame.size.height / 2.0), radius: frame.size.width/2.0, startAngle: 0.0, endAngle: CGFloat(M_PI * 2.0), clockwise: true)
+        let circlePath = UIBezierPath(arcCenter: CGPoint(x: frame.size.width / 2.0, y: frame.size.height / 2.0), radius: frame.size.width/2.0, startAngle: CGFloat( -1 * M_PI_2), endAngle: CGFloat(M_PI * 2.0 - M_PI_2), clockwise: true)
         self.circleLayer.path = circlePath.CGPath
         self.circleLayer.fillColor = UIColor.clearColor().CGColor
         self.circleLayer.strokeColor = UIColor.redColor().CGColor//self.backgroundColor!.CGColor
